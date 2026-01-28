@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Calories + Macros Calculator</title>
+  <style>
+    body{margin:0;padding:18px;background:#0a0a0a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .Riv3{max-width:920px;margin:0 auto;padding:18px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:
+      radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,.06), transparent 45%),
+      radial-gradient(900px 500px at 100% 10%, rgba(255,255,255,.05), transparent 55%),
+      #0b0b0b;color:#fff;overflow:hidden}
+    .Riv3 h2{margin:0 0 8px;font-size:20px;letter-spacing:-.2px}
+    .Riv3 .sub{margin:0 0 16px;color:#cfcfcf;line-height:1.35}
+    .Riv3 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .Riv3 label{display:block;font-size:12px;color:#dcdcdc;margin:0 0 6px;opacity:.9}
+    .Riv3 input,.Riv3 select{width:100%;padding:10px 11px;border:1px solid rgba(255,255,255,.14);border-radius:12px;font-size:14px;box-sizing:border-box;background:rgba(255,255,255,.06);color:#fff}
+    .Riv3 input::placeholder{color:rgba(255,255,255,.55)}
+    .Riv3 .row{display:flex;gap:10px}
+    .Riv3 .row > div{flex:1}
+    .Riv3 .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .Riv3 button{border:0;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .Riv3 .primary{background:#ffffff;color:#0b0b0b}
+    .Riv3 .ghost{background:rgba(255,255,255,.10);color:#fff}
+    .Riv3 .note{margin-top:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.06);color:#dcdcdc;font-size:13px;line-height:1.4;border:1px solid rgba(255,255,255,.10)}
+    .hide{display:none}
+
+    .dash{margin-top:14px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:
+      radial-gradient(1000px 600px at 0% 0%, rgba(255,255,255,.10), transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, rgba(255,255,255,.08), transparent 55%),
+      linear-gradient(180deg,#070707,#0f0f0f);
+      color:#fff;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+    .dashTop{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0}
+    .chip{display:inline-flex;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:8px 10px;border-radius:999px;font-size:12px;color:#dcdcdc}
+    .chip b{color:#fff}
+    .kcalRow{padding:10px 14px 12px;display:grid;grid-template-columns:1.2fr .8fr;gap:10px;align-items:end}
+    .kcalBig{font-size:42px;font-weight:950;letter-spacing:-1px;line-height:1}
+    .kcalBig small{font-size:12px;font-weight:700;letter-spacing:.2px;color:#bdbdbd;display:block;margin-top:6px}
+    .mini{font-size:13px;color:#d6d6d6;line-height:1.45}
+    .divider{height:1px;background:rgba(255,255,255,.08);margin:0 14px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 14px 14px}
+    .card{border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:12px}
+    .card .t{font-size:11px;color:#cfcfcf;margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+    .card .v{font-size:22px;font-weight:900}
+    .card .s{margin-top:6px;font-size:12px;color:#c9c9c9}
+
+    .gaugeWrap{padding:14px}
+    .gaugeTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;color:#dcdcdc}
+    .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10);overflow:hidden}
+    .fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg, rgba(255,255,255,.25), rgba(255,255,255,.85));transition:width .5s ease}
+    .msg{padding:0 14px 14px}
+    .warn,.ok{padding:10px 12px;border-radius:14px;font-size:13px;line-height:1.35;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06)}
+    .warn{color:#ffd08a}
+    .ok{color:#b9ffb2}
+    .muted{padding:10px 14px 14px;color:#9a9a9a;font-size:12px;line-height:1.45}
+
+    @media (max-width:820px){
+      .Riv3 .grid{grid-template-columns:1fr}
+      .kcalRow{grid-template-columns:1fr}
+      .cards{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="Riv3">
+    <h2>Calories + Macros (High-Precision Estimate)</h2>
+    <p class="sub">Estimates maintenance (TDEE), then sets a daily target + simple macros. Track 7–14 day trend and adjust if needed.</p>
+
+    <div class="grid">
+      <div>
+        <label for="u_units">Units</label>
+        <select id="u_units">
+          <option value="metric" selected>Metric (cm, kg)</option>
+          <option value="imperial">Imperial (ft/in, lb)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="u_sex">Sex</label>
+        <select id="u_sex">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="u_age">Age (years)</label>
+        <input id="u_age" type="number" min="10" max="100" value="30"/>
+      </div>
+
+      <div id="mHeight">
+        <label for="u_cm">Height (cm)</label>
+        <input id="u_cm" type="number" min="120" max="230" value="175"/>
+      </div>
+
+      <div id="iHeight" class="hide">
+        <label>Height (ft / in)</label>
+        <div class="row">
+          <div><input id="u_ft" type="number" min="3" max="8" value="5"/></div>
+          <div><input id="u_in" type="number" min="0" max="11" value="9"/></div>
+        </div>
+      </div>
+
+      <div id="mWeight">
+        <label for="u_kg">Current weight (kg)</label>
+        <input id="u_kg" type="number" min="35" max="250" value="80"/>
+      </div>
+
+      <div id="iWeight" class="hide">
+        <label for="u_lb">Current weight (lb)</label>
+        <input id="u_lb" type="number" min="80" max="550" value="176"/>
+      </div>
+
+      <div>
+        <label for="u_activity">Activity level</label>
+        <select id="u_activity">
+          <option value="1.2">Sedentary</option>
+          <option value="1.375">Light (1–3 days/week)</option>
+          <option value="1.55" selected>Moderate (3–5 days/week)</option>
+          <option value="1.725">Very active (6–7 days/week)</option>
+          <option value="1.9">Athlete (hard training)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="u_goal">Goal style</label>
+        <select id="u_goal">
+          <option value="cut" selected>Cut (fat loss)</option>
+          <option value="leanbulk">Lean bulk</option>
+          <option value="recomp">Recomp (slow)</option>
+          <option value="maintain">Maintain</option>
+        </select>
+      </div>
+
+      <div id="mGoal">
+        <label for="u_goalKg">Target weight (kg)</label>
+        <input id="u_goalKg" type="number" min="35" max="250" value="72"/>
+      </div>
+
+      <div id="iGoal" class="hide">
+        <label for="u_goalLb">Target weight (lb)</label>
+        <input id="u_goalLb" type="number" min="80" max="550" value="158"/>
+      </div>
+
+      <div id="timeWrap">
+        <label for="u_weeks">Timeframe (weeks)</label>
+        <input id="u_weeks" type="number" min="1" max="104" value="12"/>
+      </div>
+
+      <div id="paceWrap">
+        <label for="u_pace">Pace preference</label>
+        <select id="u_pace">
+          <option value="auto" selected>Match my target + weeks</option>
+          <option value="1lb">~1 lb/week</option>
+          <option value="2lb">~2 lb/week (aggressive)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="u_protein">Protein preference</label>
+        <select id="u_protein">
+          <option value="auto" selected>Auto (recommended)</option>
+          <option value="high">High protein</option>
+          <option value="moderate">Moderate protein</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="u_meals">Meals per day (optional)</label>
+        <select id="u_meals">
+          <option value="0" selected>Don’t split meals</option>
+          <option value="3">3 meals</option>
+          <option value="4">4 meals</option>
+          <option value="5">5 meals</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="primary" id="btnCalc" type="button">Calculate</button>
+      <button class="ghost" id="btnReset" type="button">Reset output</button>
+    </div>
+
+    <div class="note">
+      <strong>How it works:</strong> Mifflin-St Jeor BMR → Activity (TDEE) → Goal deficit/surplus.
+      Macros: protein set per bodyweight, fat auto floor, carbs fill the rest.
+    </div>
+
+    <div class="dash hide" id="out">
+      <div class="dashTop">
+        <div class="chip">Goal: <b id="o_goal">—</b></div>
+        <div class="chip">Planned pace: <b id="o_pace">—</b></div>
+      </div>
+
+      <div class="kcalRow">
+        <div>
+          <div class="kcalBig"><span id="o_kcal">—</span> <small>kcal / day</small></div>
+        </div>
+        <div class="mini" id="o_meta"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="t">Protein</div>
+          <div class="v"><span id="o_pG">—</span> g</div>
+          <div class="s"><span id="o_pK">—</span> kcal</div>
+          <div class="s" id="o_pMeal" style="opacity:.9"></div>
+        </div>
+        <div class="card">
+          <div class="t">Carbs</div>
+          <div class="v"><span id="o_cG">—</span> g</div>
+          <div class="s"><span id="o_cK">—</span> kcal</div>
+        </div>
+        <div class="card">
+          <div class="t">Fat (auto)</div>
+          <div class="v"><span id="o_fG">—</span> g</div>
+          <div class="s"><span id="o_fK">—</span> kcal</div>
+        </div>
+      </div>
+
+      <div class="gaugeWrap">
+        <div class="gaugeTitle">
+          <span>Calorie change vs maintenance</span>
+          <span><b id="o_delta">—</b></span>
+        </div>
+        <div class="bar"><div class="fill" id="o_fill"></div></div>
+      </div>
+
+      <div class="msg">
+        <div class="warn hide" id="o_warn"></div>
+        <div class="ok hide" id="o_ok"></div>
+      </div>
+
+      <div class="muted">
+        Start here. Track 7–14 day trend. If you stall, adjust by ~100–200 kcal/day.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const $ = (id)=>document.getElementById(id);
+
+      function lbToKg(lb){ return lb * 0.45359237; }
+      function inToCm(inch){ return inch * 2.54; }
+      function round(n){ return Math.round(n); }
+      function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+      const units = $("u_units");
+      const goal  = $("u_goal");
+
+      function getCm(){
+        if(units.value==="metric") return parseFloat($("u_cm").value||0);
+        const ft = parseFloat($("u_ft").value||0);
+        const inch = parseFloat($("u_in").value||0);
+        return inToCm(ft*12 + inch);
+      }
+
+      function getKg(){
+        if(units.value==="metric") return parseFloat($("u_kg").value||0);
+        return lbToKg(parseFloat($("u_lb").value||0));
+      }
+
+      function getGoalKg(){
+        if(units.value==="metric") return parseFloat($("u_goalKg").value||0);
+        return lbToKg(parseFloat($("u_goalLb").value||0));
+      }
+
+      function bmrMifflin(sex, kg, cm, age){
+        const base = 10*kg + 6.25*cm - 5*age;
+        return sex==="male" ? (base+5) : (base-161);
+      }
+
+      function showUnits(){
+        const metric = units.value==="metric";
+        $("mHeight").classList.toggle("hide", !metric);
+        $("mWeight").classList.toggle("hide", !metric);
+        $("mGoal").classList.toggle("hide", !metric);
+
+        $("iHeight").classList.toggle("hide", metric);
+        $("iWeight").classList.toggle("hide", metric);
+        $("iGoal").classList.toggle("hide", metric);
+
+        showGoalFields();
+        resetOut();
+      }
+
+      function showGoalFields(){
+        const needs = goal.value!=="maintain";
+        $("timeWrap").classList.toggle("hide", !needs);
+        $("paceWrap").classList.toggle("hide", !needs);
+        $("mGoal").classList.toggle("hide", (units.value!=="metric") || !needs);
+        $("iGoal").classList.toggle("hide", (units.value==="metric") || !needs);
+      }
+
+      function resetOut(){
+        $("out").classList.add("hide");
+        $("o_warn").classList.add("hide");
+        $("o_ok").classList.add("hide");
+        $("o_warn").textContent="";
+        $("o_ok").textContent="";
+        $("o_fill").style.width="0%";
+      }
+
+      function goalName(v){
+        if(v==="cut") return "Cut";
+        if(v==="leanbulk") return "Lean bulk";
+        if(v==="recomp") return "Recomp";
+        return "Maintain";
+      }
+
+      function paceText(delta){
+        if(delta===0) return "Maintain";
+        const weeklyLb = (Math.abs(delta)*7)/3500;
+        const dir = delta<0 ? "loss" : "gain";
+        return "~" + (Math.round(weeklyLb*10)/10) + " lb/week " + dir;
+      }
+
+      function calc(){
+        resetOut();
+
+        const sex = $("u_sex").value;
+        const age = parseFloat($("u_age").value||0);
+        const cm  = getCm();
+        const kg  = getKg();
+        const activity = parseFloat($("u_activity").value);
+        const g = goal.value;
+
+        const weeks = clamp(parseFloat($("u_weeks").value||12), 1, 104);
+        const pace = $("u_pace").value;
+        const proteinPref = $("u_protein").value;
+        const meals = parseInt($("u_meals").value,10);
+
+        if(!age || !cm || !kg){
+          alert("Please fill in age, height, and current weight.");
+          return;
+        }
+
+        const bmr = bmrMifflin(sex, kg, cm, age);
+        const tdee = bmr * activity;
+
+        let delta = 0; // kcal/day change vs maintenance
+        let warn = "";
+        let ok = "";
+
+        if(g==="maintain"){
+          delta = 0;
+          ok = "Maintenance target shown. Keep training consistent and track the weekly trend.";
+        } else {
+          const goalKg = getGoalKg();
+          if(!goalKg){
+            alert("Please enter a target weight.");
+            return;
+          }
+
+          const deltaKg = goalKg - kg;
+          const deltaLb = deltaKg * 2.2046226218;
+
+          const required = (Math.abs(deltaLb) * 3500) / (weeks * 7);
+
+          let chosen = required;
+          if(pace==="1lb") chosen = 500;
+          if(pace==="2lb") chosen = 1000;
+
+          if(g==="recomp"){
+            chosen = (pace==="2lb") ? 500 : 250;
+          }
+
+          if(g==="cut"){
+            if(deltaKg >= 0){ warn = "Target weight isn’t lower than current. Adjust target or switch goal."; delta=0; }
+            else{
+              delta = -clamp(chosen, 250, 1000);
+              if(required > 1000 && pace==="auto") warn = "That target is faster than ~2 lb/week. Add more weeks or choose ~1 lb/week.";
+              else ok = "Cut target set. Expect weekly change — daily weigh-ins fluctuate.";
+            }
+          }
+
+          if(g==="leanbulk"){
+            if(deltaKg <= 0){ warn = "Target weight isn’t higher than current. Adjust target or switch goal."; delta=0; }
+            else{
+              let surplus = chosen;
+              if(pace==="auto" && surplus > 500){ warn = "That gain rate needs a big surplus and usually adds fat. Consider more weeks."; surplus = 300; }
+              if(pace==="2lb") warn = "2 lb/week as ‘muscle’ isn’t realistic for most people — expect fat gain at this pace.";
+              delta = clamp(surplus, 150, 700);
+              if(!warn) ok = "Lean bulk target set. If waist jumps fast, reduce calories slightly.";
+            }
+          }
+        }
+
+        const targetKcal = round(tdee + delta);
+
+        if(targetKcal < 1200 && sex==="female") warn = (warn?warn+" ":"") + "Calories are extremely low. Consider a longer timeframe.";
+        if(targetKcal < 1500 && sex==="male") warn = (warn?warn+" ":"") + "Calories are extremely low. Consider a longer timeframe.";
+
+        // Macros
+        let pPerKg;
+        if(proteinPref==="high"){
+          pPerKg = (g==="cut") ? 2.4 : 2.2;
+        } else if(proteinPref==="moderate"){
+          pPerKg = (g==="cut") ? 2.0 : 1.8;
+        } else {
+          if(g==="cut") pPerKg = 2.2;
+          else if(g==="leanbulk") pPerKg = 1.8;
+          else if(g==="recomp") pPerKg = 2.0;
+          else pPerKg = 1.8;
+        }
+
+        const pG = round(kg * pPerKg);
+        const pK = pG * 4;
+
+        const fPerKg = (g==="cut" || g==="recomp") ? 0.7 : 0.6;
+        const fG = round(kg * fPerKg);
+        const fK = fG * 9;
+
+        let remaining = targetKcal - (pK + fK);
+        let cG = Math.floor(remaining / 4);
+        if(cG < 0){
+          cG = 0;
+          warn = (warn?warn+" ":"") + "Macros don’t fit at this calorie level. Increase calories or extend timeframe.";
+        }
+        const cK = cG * 4;
+
+        // Output
+        $("o_goal").textContent = goalName(g);
+        $("o_pace").textContent = paceText(delta);
+        $("o_kcal").textContent = targetKcal.toLocaleString();
+
+        $("o_meta").innerHTML =
+          "BMR: <b>"+round(bmr).toLocaleString()+"</b> kcal/day<br/>" +
+          "Maintenance (TDEE): <b>"+round(tdee).toLocaleString()+"</b> kcal/day<br/>" +
+          "Delta vs maintenance: <b>"+(delta===0? "0" : (delta>0? "+"+round(delta) : round(delta)))+"</b> kcal/day";
+
+        $("o_pG").textContent = pG.toLocaleString();
+        $("o_pK").textContent = pK.toLocaleString();
+        $("o_cG").textContent = cG.toLocaleString();
+        $("o_cK").textContent = cK.toLocaleString();
+        $("o_fG").textContent = fG.toLocaleString();
+        $("o_fK").textContent = fK.toLocaleString();
+
+        if(meals>0){
+          const perMeal = Math.round(pG / meals);
+          $("o_pMeal").textContent = "≈ " + perMeal + " g protein per meal ("+meals+"/day)";
+        } else {
+          $("o_pMeal").textContent = "";
+        }
+
+        const gauge = Math.min(100, Math.round((Math.abs(delta)/1000)*100));
+        $("o_delta").textContent = (delta===0 ? "0 kcal/day" : (delta>0? "+"+round(delta) : round(delta)) + " kcal/day");
+        $("o_fill").style.width = gauge + "%";
+
+        if(warn){
+          $("o_warn").textContent = warn;
+          $("o_warn").classList.remove("hide");
+        }
+        if(ok && !warn){
+          $("o_ok").textContent = ok;
+          $("o_ok").classList.remove("hide");
+        }
+
+        $("out").classList.remove("hide");
+        $("out").scrollIntoView({behavior:"smooth", block:"nearest"});
+      }
+
+      units.addEventListener("change", showUnits);
+      goal.addEventListener("change", function(){ showGoalFields(); resetOut(); });
+
+      $("btnCalc").addEventListener("click", calc);
+      $("btnReset").addEventListener("click", resetOut);
+
+      showUnits();
+      showGoalFields();
+    })();
+  </script>
+</body>
+</html>
